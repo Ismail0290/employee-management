@@ -2,18 +2,20 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Employee
-from .forms import EmployeeForm
 
 # Create (Insert)
 def add_employee(request):
-    if request.method == "POST":
-        form = EmployeeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("list_employees")
-    else:
-        form = EmployeeForm()
-    return render(request, "employee/add_employee.html", {"form": form})
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        department = request.POST.get('department')
+        salary = request.POST.get('salary')
+
+        Employee.objects.create(name=name, email=email, department=department, salary=salary)
+        return redirect('list_employees')
+
+    return render(request, 'employee/add_employee.html')
+
 
 # Read (View All)
 def list_employees(request):
@@ -23,14 +25,17 @@ def list_employees(request):
 # Update
 def update_employee(request, id):
     employee = get_object_or_404(Employee, id=id)
+
     if request.method == "POST":
-        form = EmployeeForm(request.POST, instance=employee)
-        if form.is_valid():
-            form.save()
-            return redirect("list_employees")
-    else:
-        form = EmployeeForm(instance=employee)
-    return render(request, "employee/update_employee.html", {"form": form})
+        employee.name = request.POST.get("name")
+        employee.email = request.POST.get("email")
+        employee.department = request.POST.get("department")
+        employee.salary = request.POST.get("salary")
+        employee.save()
+        return redirect("list_employees")
+
+    return render(request, "employee/update_employee.html", {"employee": employee})
+
 
 # Delete
 def delete_employee(request, id):
